@@ -1,0 +1,48 @@
+# Git Setup and GitHub Push Guide
+
+## Step 1: Install Git
+1. Go to https://git-scm.com/download/win
+2. Download the Windows installer
+3. Run the installer with default settings
+4. Restart your command prompt/terminal after installation
+
+## Step 2: Configure Git (Run these commands in your terminal)
+```bash
+git config --global user.name "swativerma08"
+git config --global user.email "your-email@example.com"
+```
+
+## Step 3: Navigate to your project directory
+```bash
+cd "c:/Users/swati/Documents/Food ordering/Food ordering"
+```
+
+## Step 4: Initialize Git repository
+```bash
+git init
+```
+
+## Step 5: Add all files to the repository
+```bash
+git add .
+```
+
+## Step 6: Create initial commit
+```bash
+git commit -m "Initial commit: Food ordering system"
+```
+
+## Step 7: Add remote repository
+```bash
+git remote add origin https://github.com/swativerma08/Food_Ordering-system.git
+```
+
+## Step 8: Push to GitHub
+```bash
+git branch -M main
+git push -u origin main
+```
+
+## Troubleshooting
+- If you get authentication errors, you may need to set up a personal access token in GitHub
+- Make sure you have write permissions to the repository

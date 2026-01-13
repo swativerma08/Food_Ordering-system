@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Homepage Content -->
+<div class="hero">
+    <div class="hero-content">
+        <h1 class="animate-up">Experience the <span class="highlight">Flavor</span> of Tradition</h1>
+        <p class="animate-up delay-1">Fresh ingredients, authentic recipes, and a passion for taste.</p>
+        
+        <!-- Menu Category Bar -->
+        <div class="menu-category-bar">
+            <div class="category-item active" data-category="all">All Items</div>
+            <div class="category-item" data-category="breakfast">Breakfast</div>
+            <div class="category-item" data-category="lunch">Lunch</div>
+            <div class="category-item" data-category="snacks">Snacks</div>
+            <div class="category-item" data-category="dinner">Dinner</div>
+            <div class="category-item" data-category="beverages">Beverages</div>
+        </div>
+        
+        <a href="{{ url_for('menu') }}" class="cta-button animate-up delay-2">View Full Menu</a>
+    </div>
+    <div class="hero-image animate-fade delay-1">
+        <!-- Conceptual Abstract shape or hero image could go here -->
+        <!-- Using a placeholder div for visual balance if no main hero img yet -->
+        <div class="hero-shape"></div>
+    </div>
+</div>
+
+<!-- Featured Menu Items Section -->
+<div class="featured-menu">
+    <div class="container">
+        <h2 class="section-title">Featured <span class="highlight">Menu</span></h2>
+        <div class="menu-grid" id="featured-menu-grid">
+            <!-- Menu items will be loaded here dynamically -->
+        </div>
+    </div>
+</div>
+
+<section class="features">
+    <div class="feature-card animate-scroll">
+        <i class="fas fa-shipping-fast"></i>
+        <h3>Fast Delivery</h3>
+        <p>Hot and fresh at your doorstep within 30 mins.</p>
+    </div>
+    <div class="feature-card animate-scroll delay-1">
+        <i class="fas fa-leaf"></i>
+        <h3>Fresh Ingredients</h3>
+        <p>We source only the best local produce.</p>
+    </div>
+    <div class="feature-card animate-scroll delay-2">
+        <i class="fas fa-award"></i>
+        <h3>Master Chefs</h3>
+        <p>Curated by award-winning culinary experts.</p>
+    </div>
+</section>
+{% endblock %}

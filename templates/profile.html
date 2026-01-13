@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Profile Content -->
+<div class="profile-container">
+    <div class="profile-header">
+        <h2>User Profile</h2>
+    </div>
+    
+    <div class="profile-info">
+        <div class="profile-card">
+          
+            
+            <!-- Edit Profile Button -->
+            <button id="edit-profile-btn" class="edit-profile-btn" onclick="showEditProfileForm()">Edit Profile</button>
+            
+            <!-- Edit Profile Form (initially hidden) -->
+            <div id="edit-profile-form" class="edit-profile-form" style="display: none;">
+                <h4>Edit Profile Information</h4>
+                <div>
+                    <label for="edit-username">User Name:</label>
+                    <input type="text" id="edit-username" name="username" value="{{ user.username if user.username else '' }}">
+                </div>
+                <div>
+                    <label for="edit-full-name">Full Name:</label>
+                    <input type="text" id="edit-full-name" name="full_name" value="{{ user.full_name if user.full_name else '' }}">
+                </div>
+                <div>
+                    <label for="edit-email">Email:</label>
+                    <input type="email" id="edit-email" name="email" value="{{ user.email if user.email else '' }}">
+                </div>
+                <div>
+                    <label for="edit-phone">Phone Number:</label>
+                    <input type="tel" id="edit-phone" name="phone" value="{{ user.phone if user.phone else '' }}">
+                </div>
+                <div>
+                    <label for="edit-address">Address:</label>
+                    <textarea id="edit-address" name="address">{{ user.address if user.address else '' }}</textarea>
+                </div>
+                <button type="button" onclick="updateProfile()">Confirm</button>
+                <button type="button" onclick="hideEditProfileForm()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="order-history">
+        <h3>Order History</h3>
+        {% if orders %}
+        <div class="orders-list">
+            {% for order in orders %}
+            <div class="order-item">
+                <div class="order-date">{{ order.timestamp[:19] if order.timestamp else 'Recent Order' }}</div>
+                <div class="order-details">
+                    {% for item in order.order_summary %}
+                    <div class="order-line">
+                        <span>{{ item.name }} x{{ item.quantity }}</span>
+                        <span>₹{{ item.total }}</span>
+                    </div>
+                    {% endfor %}
+                    <div class="order-total">
+                        <strong>Total: ₹{{ order.total_amount }}</strong>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No orders yet. <a href="{{ url_for('menu') }}">Start shopping!</a></p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

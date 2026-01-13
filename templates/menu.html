@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="menu-page">
+    <header class="menu-header">
+        <h1>Our <span class="highlight">Menu</span></h1>
+        <p>Choose from our delectable selection of dishes.</p>
+    </header>
+
+    <!-- Menu Category Bar -->
+    <div class="menu-category-bar">
+        <div class="category-item active" data-category="all">All Items</div>
+        <div class="category-item" data-category="breakfast">Breakfast</div>
+        <div class="category-item" data-category="lunch">Lunch</div>
+        <div class="category-item" data-category="snacks">Snacks</div>
+        <div class="category-item" data-category="dinner">Dinner</div>
+        <div class="category-item" data-category="beverages">Beverages</div>
+    </div>
+
+    <div class="menu-grid" id="menu-grid">
+        {% for item in menu %}
+        <div class="menu-card" data-id="{{ item.id }}">
+            <div class="card-image">
+                <img src="{{ url_for('static', filename='images/' + item.image) }}" alt="{{ item.name }}"
+                    loading="lazy">
+            </div>
+            <div class="card-info">
+                <span class="category-tag">{{ item.category }}</span>
+                <h3>{{ item.name }}</h3>
+                <p class="description">{{ item.description }}</p>
+                <div class="card-footer">
+                    <span class="price">₹{{ item.price }}</span>
+                    <button class="add-btn" onclick="addToCart({{ item.id }}, {{ item.name|tojson }}, {{ item.price }})">
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+// Menu Category Filtering for menu page
+if (document.querySelector('.category-item')) {
+    const categoryItems = document.querySelectorAll('.category-item');
+    categoryItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Remove active class from all items
+            categoryItems.forEach(cat => cat.classList.remove('active'));
+            
+            // Add active class to clicked item
+            this.classList.add('active');
+            
+            // Get selected category
+            const selectedCategory = this.getAttribute('data-category');
+            
+            // Show loading indicator
+            const menuGrid = document.getElementById('menu-grid');
+            if (menuGrid) {
+                menuGrid.innerHTML = '<div class="loading-message">Loading menu items...</div>';
+                
+                // Make AJAX request to backend to get filtered menu items
+                fetch(`/menu/filter/\${selectedCategory}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayFilteredMenuItems(data.items, menuGrid);
+                    } else {
+                        menuGrid.innerHTML = '<div class="error-message">Failed to load menu items</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching menu items:', error);
+                    menuGrid.innerHTML = '<div class="error-message">Error loading menu items</div>';
+                });
+            }
+        });
+    });
+}
+
+function displayFilteredMenuItems(items, menuGrid) {
+    if (!items || items.length === 0) {
+        menuGrid.innerHTML = '<div class="no-items-message">No items found in this category</div>';
+        return;
+    }
+    
+    let menuHTML = '';
+    items.forEach(item => {
+        menuHTML += `
+            <div class="menu-card" data-id="\${item.id}">
+                <div class="card-image">
+                    <img src="/static/images/\${item.image}" alt="\${item.name}" loading="lazy">
+                </div>
+                <div class="card-info">
+                    <span class="category-tag">\${item.category}</span>
+                    <h3>\${item.name}</h3>
+                    <p class="description">\${item.description}</p>
+                    <div class="card-footer">
+                        <span class="price">₹\${item.price}</span>
+                        <button class="add-btn" onclick="addToCart(\${item.id}, \${JSON.stringify(item.name)}, \${item.price})">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    menuGrid.innerHTML = menuHTML;
+}
+</script>
+{% endblock %}

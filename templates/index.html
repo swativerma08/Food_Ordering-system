@@ -9,15 +9,15 @@
         
         <!-- Menu Category Bar -->
         <div class="menu-category-bar">
-            <div class="category-item active" data-category="all">All Items</div>
-            <div class="category-item" data-category="breakfast">Breakfast</div>
-            <div class="category-item" data-category="lunch">Lunch</div>
-            <div class="category-item" data-category="snacks">Snacks</div>
-            <div class="category-item" data-category="dinner">Dinner</div>
-            <div class="category-item" data-category="beverages">Beverages</div>
+            <a href="/menu?category=all" class="category-link"><div class="category-item active" data-category="all">All Items</div></a>
+            <a href="/menu?category=breakfast" class="category-link"><div class="category-item" data-category="breakfast">Breakfast</div></a>
+            <a href="/menu?category=lunch" class="category-link"><div class="category-item" data-category="lunch">Lunch</div></a>
+            <a href="/menu?category=snacks" class="category-link"><div class="category-item" data-category="snacks">Snacks</div></a>
+            <a href="/menu?category=dinner" class="category-link"><div class="category-item" data-category="dinner">Dinner</div></a>
+            <a href="/menu?category=beverages" class="category-link"><div class="category-item" data-category="beverages">Beverages</div></a>
         </div>
         
-        <a href="{{ url_for('menu') }}" class="cta-button animate-up delay-2">View Full Menu</a>
+        <a href="{{ url_for('menu') }}" class="cta-button animate-up delay-2" id="view-menu-btn">View Full Menu</a>
     </div>
     <div class="hero-image animate-fade delay-1">
         <!-- Conceptual Abstract shape or hero image could go here -->
@@ -53,4 +53,13 @@
         <p>Curated by award-winning culinary experts.</p>
     </div>
 </section>
+
+<script>
+// Update the default menu link to point to 'all' items
+const viewMenuBtn = document.getElementById('view-menu-btn');
+if (viewMenuBtn) {
+    viewMenuBtn.href = `/menu?category=all`;
+}
+</script>
+
 {% endblock %}

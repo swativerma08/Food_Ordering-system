@@ -23,6 +23,11 @@
             <div class="card-image">
                 <img src="{{ url_for('static', filename='images/' + item.image) }}" alt="{{ item.name }}"
                     loading="lazy">
+                {% if item.veg == true %}
+                <div class="veg-indicator"></div>
+                {% else %}
+                <div class="non-veg-indicator"></div>
+                {% endif %}
             </div>
             <div class="card-info">
                 <span class="category-tag">{{ item.category }}</span>
@@ -30,7 +35,7 @@
                 <p class="description">{{ item.description }}</p>
                 <div class="card-footer">
                     <span class="price">₹{{ item.price }}</span>
-                    <button class="add-btn" onclick="addToCart({{ item.id }}, {{ item.name|tojson }}, {{ item.price }})">
+                    <button class="add-btn" data-id="{{ item.id }}" data-name="{{ item.name|tojson|replace('"', '&quot;') }}" data-price="{{ item.price }}" onclick="handleAddToCart(this)">
                         Add to Cart
                     </button>
                 </div>
@@ -41,9 +46,52 @@
 </div>
 
 <script>
+// Function to get URL parameters
+function getUrlParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
 // Menu Category Filtering for menu page
 if (document.querySelector('.category-item')) {
     const categoryItems = document.querySelectorAll('.category-item');
+    
+    // Check if a category is specified in the URL when the page loads
+    const initialCategory = getUrlParameter('category');
+    if (initialCategory) {
+        // Remove active class from all items
+        categoryItems.forEach(cat => cat.classList.remove('active'));
+        
+        // Find the corresponding category item and activate it
+        const targetCategoryItem = Array.from(categoryItems).find(item => 
+            item.getAttribute('data-category') === initialCategory
+        );
+        
+        if (targetCategoryItem) {
+            targetCategoryItem.classList.add('active');
+            
+            // Load the filtered menu items for the initial category
+            const menuGrid = document.getElementById('menu-grid');
+            if (menuGrid) {
+                menuGrid.innerHTML = '<div class="loading-message">Loading menu items...</div>';
+                
+                fetch(`/menu/filter/${initialCategory}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayFilteredMenuItems(data.items, menuGrid);
+                    } else {
+                        menuGrid.innerHTML = '<div class="error-message">Failed to load menu items</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching menu items:', error);
+                    menuGrid.innerHTML = '<div class="error-message">Error loading menu items</div>';
+                });
+            }
+        }
+    }
+    
     categoryItems.forEach(item => {
         item.addEventListener('click', function() {
             // Remove active class from all items
@@ -61,7 +109,7 @@ if (document.querySelector('.category-item')) {
                 menuGrid.innerHTML = '<div class="loading-message">Loading menu items...</div>';
                 
                 // Make AJAX request to backend to get filtered menu items
-                fetch(`/menu/filter/\${selectedCategory}`)
+                fetch(`/menu/filter/${selectedCategory}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -87,27 +135,35 @@ function displayFilteredMenuItems(items, menuGrid) {
     
     let menuHTML = '';
     items.forEach(item => {
-        menuHTML += `
-            <div class="menu-card" data-id="\${item.id}">
-                <div class="card-image">
-                    <img src="/static/images/\${item.image}" alt="\${item.name}" loading="lazy">
-                </div>
-                <div class="card-info">
-                    <span class="category-tag">\${item.category}</span>
-                    <h3>\${item.name}</h3>
-                    <p class="description">\${item.description}</p>
-                    <div class="card-footer">
-                        <span class="price">₹\${item.price}</span>
-                        <button class="add-btn" onclick="addToCart(\${item.id}, \${JSON.stringify(item.name)}, \${item.price})">
-                            Add to Cart
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
+        // Create the HTML string using proper string concatenation
+        menuHTML += '<div class="menu-card" data-id="' + item.id + '">' +
+                   '<div class="card-image">' +
+                   '<img src="/static/images/' + item.image + '" alt="' + item.name + '" loading="lazy">' +
+                   '</div>' +
+                   '<div class="card-info">' +
+                   '<span class="category-tag">' + item.category + '</span>' +
+                   '<h3>' + item.name + '</h3>' +
+                   '<p class="description">' + item.description + '</p>' +
+                   '<div class="card-footer">' +
+                   '<span class="price">₹' + item.price + '</span>' +
+                   '<button class="add-btn" data-id="' + item.id + '" data-name="' + encodeURIComponent(item.name) + '" data-price="' + item.price + '" onclick="handleAddToCart(this)">' +
+                   'Add to Cart' +
+                   '</button>' +
+                   '</div>' +
+                   '</div>' +
+                   '</div>';
     });
     
     menuGrid.innerHTML = menuHTML;
+}
+
+function handleAddToCart(buttonElement) {
+    const id = buttonElement.getAttribute('data-id');
+    const name = decodeURIComponent(buttonElement.getAttribute('data-name'));
+    const price = parseFloat(buttonElement.getAttribute('data-price'));
+    
+    // Use the addToCart function from script.js
+    addToCart(id, name, price);
 }
 </script>
 {% endblock %}

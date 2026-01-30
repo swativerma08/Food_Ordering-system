@@ -9,13 +9,18 @@
     
     <div class="profile-info">
         <div class="profile-card">
-          
+            <h3 id="full-name-display">{{ user.full_name if user.full_name else 'Not provided' }}</h3>
+            <p><strong>Username:</strong> <span id="username-display">{{ user.username if user.username else 'Not provided' }}</span></p>
+            <p><strong>Email:</strong> <span id="email-display">{{ user.email if user.email else 'Not provided' }}</span></p>
+            <p><strong>Phone:</strong> <span id="phone-display">{{ user.phone if user.phone else 'Not provided' }}</span></p>
+            <p><strong>Address:</strong> <span id="address-display">{{ user.address if user.address else 'Not provided' }}</span></p>
             
             <!-- Edit Profile Button -->
             <button id="edit-profile-btn" class="edit-profile-btn" onclick="showEditProfileForm()">Edit Profile</button>
             
             <!-- Edit Profile Form (initially hidden) -->
-            <div id="edit-profile-form" class="edit-profile-form" style="display: none;">
+            <form id="edit-profile-form" class="edit-profile-form" style="display: none;">
+                <input type="hidden" name="user_id" value="{{ user.id }}">
                 <h4>Edit Profile Information</h4>
                 <div>
                     <label for="edit-username">User Name:</label>
@@ -39,7 +44,7 @@
                 </div>
                 <button type="button" onclick="updateProfile()">Confirm</button>
                 <button type="button" onclick="hideEditProfileForm()">Cancel</button>
-            </div>
+            </form>
         </div>
     </div>
     

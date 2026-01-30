@@ -166,6 +166,7 @@ function hideEditProfileForm() {
 }
 
 async function updateProfile() {
+    const userId = document.querySelector('#edit-profile-form input[name="user_id"]').value;
     const username = document.getElementById('edit-username').value;
     const fullName = document.getElementById('edit-full-name').value;
     const email = document.getElementById('edit-email').value;
@@ -173,6 +174,7 @@ async function updateProfile() {
     const address = document.getElementById('edit-address').value;
     
     const formData = new FormData();
+    formData.append('user_id', userId);
     formData.append('username', username);
     formData.append('full_name', fullName);
     formData.append('email', email);
@@ -180,7 +182,7 @@ async function updateProfile() {
     formData.append('address', address);
     
     // Debug logging
-    console.log('Updating profile with:', {username, fullName, email, phone, address});
+    console.log('Updating profile with:', {userId, username, fullName, email, phone, address});
     
     try {
         const response = await fetch('/update_profile', {
@@ -497,3 +499,44 @@ window.addEventListener('click', function(e) {
 
 // Initialize chatbot
 resetChatbot();
+
+// Theme Toggle Functionality
+function toggleTheme() {
+    const body = document.body;
+    const themeIcon = document.querySelector('.theme-toggle i');
+    
+    if (body.classList.contains('light-theme')) {
+        // Switch to dark theme
+        body.classList.remove('light-theme');
+        
+        // Update icon to moon (dark mode)
+        themeIcon.className = 'fas fa-moon';
+        
+        // Save theme preference
+        localStorage.setItem('theme', 'dark');
+    } else {
+        // Switch to light theme
+        body.classList.add('light-theme');
+        
+        // Update icon to sun (light mode)
+        themeIcon.className = 'fas fa-sun';
+        
+        // Save theme preference
+        localStorage.setItem('theme', 'light');
+    }
+}
+
+// Check for saved theme preference or respect OS setting
+window.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    if (savedTheme === 'light' || (!savedTheme && !prefersDarkScheme.matches)) {
+        // Apply light theme
+        document.body.classList.add('light-theme');
+        document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+    } else {
+        // Apply dark theme (default)
+        document.querySelector('.theme-toggle i').className = 'fas fa-moon';
+    }
+});

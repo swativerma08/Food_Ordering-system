@@ -1,4 +1,5 @@
 :root {
+    /* Dark theme (default) */
     --primary-color: #ff6b6b;
     --secondary-color: #ffa502;
     --dark-bg: #1e1e1e;
@@ -6,6 +7,21 @@
     --text-color: #f1f1f1;
     --nav-bg: rgba(30, 30, 30, 0.95);
     --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Light theme */
+.light-theme {
+    --dark-bg: #f5f5f5;
+    --card-bg: #ffffff;
+    --text-color: #333333;
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 * {
@@ -16,10 +32,9 @@
 }
 
 body {
-    background-color: var(--dark-bg);
-    color: var(--text-color);
     line-height: 1.6;
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Typography */
@@ -93,6 +108,26 @@ h1, h2, h3 {
 
 .nav-links a:hover {
     color: var(--primary-color);
+}
+
+.theme-toggle {
+    background: none;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-left: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+    background: var(--primary-color);
+    color: white;
 }
 
 .cart-icon-container {
@@ -230,38 +265,81 @@ h1, h2, h3 {
 
 .menu-card {
     background: var(--card-bg);
-    border-radius: 20px;
+    border-radius: 15px;
     overflow: hidden;
-    transition: transform 0.3s, box-shadow 0.3s;
-    opacity: 0;
-    animation: slideUp 0.6s ease forwards;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    position: relative;
 }
 
-.menu-card:nth-child(even) { animation-delay: 0.2s; }
-
 .menu-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow);
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
 }
 
 .card-image {
-    height: 200px;
+    width: 100%;
+    height: 220px;
     overflow: hidden;
+    position: relative;
+    background-color: #333;
 }
 
 .card-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s;
+    transition: transform 0.3s ease;
+    display: block;
 }
 
 .menu-card:hover .card-image img {
-    transform: scale(1.1);
+    transform: scale(1.05);
+}
+
+/* Image loading states */
+.card-image img[loading="lazy"] {
+    background: linear-gradient(45deg, #333 25%, transparent 25%), 
+                linear-gradient(-45deg, #333 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #333 75%), 
+                linear-gradient(-45deg, transparent 75%, #333 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+/* Veg/Non-Veg indicator */
+.veg-indicator {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    border: 2px solid white;
+    z-index: 2;
+}
+
+.non-veg-indicator {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #f44336;
+    border: 2px solid white;
+    z-index: 2;
 }
 
 .card-info {
     padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .category-tag {
@@ -269,24 +347,33 @@ h1, h2, h3 {
     color: var(--secondary-color);
     text-transform: uppercase;
     letter-spacing: 1px;
+    background: rgba(255, 107, 107, 0.1);
+    padding: 4px 8px;
+    border-radius: 10px;
+    display: inline-block;
+    margin-bottom: 0.5rem;
 }
 
 .card-info h3 {
     margin: 0.5rem 0;
     font-size: 1.4rem;
+    color: var(--text-color);
 }
 
 .description {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #aaa;
-    margin-bottom: 1.5rem;
-    min-height: 45px;
+    margin-bottom: 1rem;
+    min-height: 40px;
+    flex-grow: 1;
+    line-height: 1.4;
 }
 
 .card-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: auto;
 }
 
 .price {
@@ -296,19 +383,38 @@ h1, h2, h3 {
 }
 
 .add-btn {
-    padding: 0.5rem 1.2rem;
-    background: transparent;
+    padding: 0.6rem 1.2rem;
+    background: var(--primary-color);
     border: 2px solid var(--primary-color);
-    color: var(--primary-color);
+    color: white;
     border-radius: 25px;
     cursor: pointer;
     font-weight: 600;
     transition: all 0.3s;
+    font-size: 0.9rem;
 }
 
 .add-btn:hover {
-    background: var(--primary-color);
-    color: white;
+    background: transparent;
+    color: var(--primary-color);
+    transform: scale(1.05);
+}
+
+/* Light theme overrides */
+.light-theme .menu-card {
+    background: white;
+}
+
+.light-theme .card-info h3 {
+    color: #333;
+}
+
+.light-theme .description {
+    color: #666;
+}
+
+.light-theme .category-tag {
+    color: var(--primary-color);
 }
 
 /* Cart Modal */
@@ -849,6 +955,11 @@ h1, h2, h3 {
     flex-wrap: wrap;
 }
 
+.category-link {
+    text-decoration: none;
+    display: block;
+}
+
 .category-item {
     padding: 10px 20px;
     background: transparent;
@@ -887,10 +998,51 @@ h1, h2, h3 {
     margin-bottom: 3rem;
 }
 
+.menu-page {
+    padding: 2rem 5%;
+    background: var(--dark-bg);
+    min-height: 100vh;
+}
+
+.menu-page.light-theme {
+    background: linear-gradient(135deg, #f9f7fe 0%, #e3f2fd 100%);
+}
+
+.menu-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 2rem 0;
+}
+
+.menu-header h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(45deg, var(--primary-color), #ff6b6b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.menu-header p {
+    font-size: 1.2rem;
+    color: var(--text-color);
+    margin: 0;
+}
+
 .menu-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 2rem;
     max-width: 1400px;
     margin: 0 auto;
+    padding: 1rem 0;
+}
+
+.loading-message, .error-message, .no-items-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.2rem;
+    color: #666;
 }

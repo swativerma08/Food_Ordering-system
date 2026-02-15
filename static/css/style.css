@@ -1,5 +1,4 @@
 :root {
-    /* Dark theme (default) */
     --primary-color: #ff6b6b;
     --secondary-color: #ffa502;
     --dark-bg: #1e1e1e;
@@ -9,19 +8,9 @@
     --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-/* Light theme */
-.light-theme {
-    --dark-bg: #f5f5f5;
-    --card-bg: #ffffff;
-    --text-color: #333333;
-    --nav-bg: rgba(255, 255, 255, 0.95);
-    --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
 body {
     background-color: var(--dark-bg);
     color: var(--text-color);
-    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 * {
@@ -34,7 +23,6 @@ body {
 body {
     line-height: 1.6;
     overflow-x: hidden;
-    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Typography */
@@ -108,26 +96,6 @@ h1, h2, h3 {
 
 .nav-links a:hover {
     color: var(--primary-color);
-}
-
-.theme-toggle {
-    background: none;
-    border: 2px solid var(--primary-color);
-    color: var(--primary-color);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    margin-left: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.theme-toggle:hover {
-    background: var(--primary-color);
-    color: white;
 }
 
 .cart-icon-container {
@@ -400,22 +368,7 @@ h1, h2, h3 {
     transform: scale(1.05);
 }
 
-/* Light theme overrides */
-.light-theme .menu-card {
-    background: white;
-}
-
-.light-theme .card-info h3 {
-    color: #333;
-}
-
-.light-theme .description {
-    color: #666;
-}
-
-.light-theme .category-tag {
-    color: var(--primary-color);
-}
+/* Theme overrides removed */
 
 /* Cart Modal */
 .cart-modal {
@@ -523,167 +476,150 @@ h1, h2, h3 {
     background: #ff5252;
 }
 
-/* Profile Section */
+/* Profile Section Minimal Redesign */
 .profile-container {
-    padding: 2rem 5%;
-    max-width: 1200px;
+    padding: 3rem 5%;
+    max-width: 800px;
     margin: 0 auto;
 }
 
-.profile-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.profile-header h2 {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-    color: var(--primary-color);
-}
-
-.profile-info {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 3rem;
-}
-
 .profile-card {
-    background: var(--card-bg);
-    padding: 2rem;
-    border-radius: 15px;
-    width: 100%;
-    max-width: 500px;
-    box-shadow: var(--shadow);
+    background: rgba(45, 45, 45, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    text-align: left;
+}
+
+.profile-header-minimal {
+    margin-bottom: 2.5rem;
     text-align: center;
 }
 
-.profile-card h3 {
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
+.profile-header-minimal h2 {
+    font-size: 2.5rem;
     color: var(--primary-color);
+    margin-bottom: 0.5rem;
 }
 
-.profile-card p {
-    margin: 0.5rem 0;
-    font-size: 1.1rem;
+.profile-header-minimal p {
+    color: #888;
 }
 
-.order-history {
-    margin-top: 2rem;
-}
-
-.order-history h3 {
-    font-size: 1.8rem;
-    margin-bottom: 1.5rem;
-    color: var(--primary-color);
-    text-align: center;
-}
-
-.orders-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.order-item {
-    background: var(--card-bg);
-    padding: 1.5rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-.order-date {
-    font-weight: bold;
-    margin-bottom: 1rem;
-    color: var(--secondary-color);
-    font-size: 1.1rem;
-}
-
-.order-details {
-    border-top: 1px solid #444;
-    padding-top: 1rem;
-}
-
-.order-line {
+/* View Mode */
+.profile-view .info-row {
     display: flex;
     justify-content: space-between;
-    padding: 0.3rem 0;
-    border-bottom: 1px dashed #444;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.order-total {
+.profile-view .label {
+    color: #888;
+    font-weight: 500;
+}
+
+.profile-view .value {
+    color: var(--text-color);
+    font-weight: 600;
     text-align: right;
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid #444;
-    font-weight: bold;
+}
+
+.edit-btn-minimal {
+    margin-top: 2rem;
+    background: transparent;
+    border: 1px solid var(--primary-color);
     color: var(--primary-color);
-}
-
-.order-total strong {
-    font-size: 1.2rem;
-}
-
-.edit-profile-btn {
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
     cursor: pointer;
-    margin-top: 15px;
-    font-size: 1rem;
-}
-
-.edit-profile-btn:hover {
-    background: #ff5252;
-}
-
-.edit-profile-form {
-    margin-top: 20px;
-    padding: 20px;
-    background: #3a3a3a;
-    border-radius: 10px;
-}
-
-.edit-profile-form div {
-    margin-bottom: 15px;
-}
-
-.edit-profile-form label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.edit-profile-form input,
-.edit-profile-form textarea {
     width: 100%;
-    padding: 8px;
-    border: 1px solid #555;
-    border-radius: 4px;
-    background: #444;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.edit-btn-minimal:hover {
+    background: var(--primary-color);
     color: white;
-    box-sizing: border-box;
 }
 
-.edit-profile-form textarea {
-    height: 80px;
-    resize: vertical;
+/* Edit Form */
+.profile-form .form-group {
+    margin-bottom: 1.5rem;
 }
 
-.edit-profile-form button {
+.profile-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.profile-form input,
+.profile-form textarea {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.profile-form input:focus,
+.profile-form textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.profile-form textarea {
+    min-height: 100px;
+    resize: none;
+}
+
+.form-actions {
+    margin-top: 2.5rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.confirm-btn {
+    flex: 2;
     background: var(--primary-color);
     color: white;
     border: none;
-    padding: 8px 15px;
-    border-radius: 4px;
+    padding: 1rem;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
     cursor: pointer;
-    margin-right: 10px;
+    transition: transform 0.2s, background 0.2s;
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
 }
 
-.edit-profile-form button:hover {
+.confirm-btn:hover {
     background: #ff5252;
+    transform: translateY(-2px);
+}
+
+.cancel-btn {
+    flex: 1;
+    background: transparent;
+    color: #aaa;
+    border: 1px solid #444;
+    padding: 1rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cancel-btn:hover {
+    border-color: #666;
+    color: white;
 }
 
 /* Scrollbar */
@@ -1002,10 +938,6 @@ h1, h2, h3 {
     padding: 2rem 5%;
     background: var(--dark-bg);
     min-height: 100vh;
-}
-
-.menu-page.light-theme {
-    background: linear-gradient(135deg, #f9f7fe 0%, #e3f2fd 100%);
 }
 
 .menu-header {

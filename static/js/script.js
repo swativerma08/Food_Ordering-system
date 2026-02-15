@@ -14,9 +14,42 @@ function toggleCart() {
     modal.classList.toggle('active');
 }
 
-function addToCart(id, name, price) {
+
+async function addToCart(id, name, price) {
+    // Check if it's the first item being added
+    if (cart.length === 0) {
+        try {
+            const response = await fetch('/api/check_profile_status');
+            const data = await response.json();
+
+            if (!data.success && data.message === 'User profile not initialized') {
+                // Handle edge case
+            }
+
+            if (data.complete === false) {
+                // Add the item to cart so it's saved
+                addItemToCartInternal(id, name, price);
+
+                // Show specific message about missing fields
+                const missing = data.missing_fields ? data.missing_fields.join(', ') : 'details';
+                alert(`Please complete your profile to proceed.\nMissing: ${missing}`);
+
+                // Redirect to profile page
+                window.location.href = '/profile';
+                return;
+            }
+        } catch (error) {
+            console.error('Error checking profile status:', error);
+        }
+    }
+
+    addItemToCartInternal(id, name, price);
+    showNotification(`Added ${name} to cart`);
+}
+
+function addItemToCartInternal(id, name, price) {
     const existingItem = cart.find(item => item.id === id);
-    
+
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
@@ -27,9 +60,8 @@ function addToCart(id, name, price) {
             quantity: 1
         });
     }
-    
+
     saveAndUpdate();
-    showNotification(`Added ${name} to cart`);
 }
 
 function removeFromCart(id) {
@@ -58,21 +90,21 @@ function updateCartUI() {
     const cartItemsContainer = document.getElementById('cart-items');
     const cartCount = document.getElementById('cart-count');
     const cartTotal = document.getElementById('cart-total');
-    
+
     // Update count
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     cartCount.textContent = totalItems;
-    
+
     // Update total price
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     cartTotal.textContent = `₹${total}`;
-    
+
     // Update list
     if (cart.length === 0) {
         cartItemsContainer.innerHTML = '<p class="empty-cart-msg">Your cart is empty.</p>';
         return;
     }
-    
+
     cartItemsContainer.innerHTML = cart.map(item => `
         <div class="cart-item">
             <div class="cart-item-info">
@@ -96,12 +128,12 @@ async function placeOrder() {
         alert("Your cart is empty!");
         return;
     }
-    
+
     const checkoutBtn = document.querySelector('.checkout-btn');
     const originalText = checkoutBtn.textContent;
     checkoutBtn.textContent = 'Processing...';
     checkoutBtn.disabled = true;
-    
+
     try {
         const response = await fetch('/api/order', {
             method: 'POST',
@@ -110,9 +142,9 @@ async function placeOrder() {
             },
             body: JSON.stringify({ cart: cart }),
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             alert(`Order Placed Successfully! Total: ₹${result.total_amount}`);
             cart = [];
@@ -147,7 +179,7 @@ function showNotification(msg) {
         z-index: 3000;
     `;
     document.body.appendChild(div);
-    
+
     setTimeout(() => {
         div.remove();
     }, 3000);
@@ -155,14 +187,19 @@ function showNotification(msg) {
 
 
 // Profile editing functions
+// Profile editing functions
 function showEditProfileForm() {
-    document.getElementById('edit-profile-form').style.display = 'block';
-    document.getElementById('edit-profile-btn').style.display = 'none';
+    const viewEl = document.getElementById('profile-view');
+    const formEl = document.getElementById('edit-profile-form');
+    if (viewEl) viewEl.style.display = 'none';
+    if (formEl) formEl.style.display = 'block';
 }
 
 function hideEditProfileForm() {
-    document.getElementById('edit-profile-form').style.display = 'none';
-    document.getElementById('edit-profile-btn').style.display = 'inline-block';
+    const viewEl = document.getElementById('profile-view');
+    const formEl = document.getElementById('edit-profile-form');
+    if (formEl) formEl.style.display = 'none';
+    if (viewEl) viewEl.style.display = 'block';
 }
 
 async function updateProfile() {
@@ -172,7 +209,7 @@ async function updateProfile() {
     const email = document.getElementById('edit-email').value;
     const phone = document.getElementById('edit-phone').value;
     const address = document.getElementById('edit-address').value;
-    
+
     const formData = new FormData();
     formData.append('user_id', userId);
     formData.append('username', username);
@@ -180,30 +217,36 @@ async function updateProfile() {
     formData.append('email', email);
     formData.append('phone', phone);
     formData.append('address', address);
-    
+
     // Debug logging
-    console.log('Updating profile with:', {userId, username, fullName, email, phone, address});
-    
+    console.log('Updating profile with:', { userId, username, fullName, email, phone, address });
+
     try {
         const response = await fetch('/update_profile', {
             method: 'POST',
             body: formData
         });
-        
+
         const result = await response.json();
         console.log('Server response:', result);
-        
+
         if (result.success) {
-            // Update the displayed values
-            document.getElementById('edit-profile-btn').textContent = 'Welcome, ' + username;
-            document.getElementById('full-name-display').textContent = fullName || 'Not provided';
-            document.getElementById('email-display').textContent = email;
-            document.getElementById('phone-display').textContent = phone || 'Not provided';
-            document.getElementById('address-display').textContent = address || 'Not provided';
-            
+            // Update the displayed values with new IDs
+            if (document.getElementById('view-full-name')) document.getElementById('view-full-name').textContent = fullName;
+            if (document.getElementById('view-username')) document.getElementById('view-username').textContent = username;
+            if (document.getElementById('view-phone')) document.getElementById('view-phone').textContent = phone;
+            if (document.getElementById('view-address')) document.getElementById('view-address').textContent = address;
+
             // Hide the form and show success message
             hideEditProfileForm();
-            showNotification('Profile updated successfully!');
+
+            if (typeof cart !== 'undefined' && cart && cart.length > 0) {
+                showNotification('Profile updated! You can now proceed with your order.');
+                // Automatically open cart to prompt checkout
+                if (typeof toggleCart === 'function') setTimeout(toggleCart, 1000);
+            } else {
+                showNotification('Profile updated successfully!');
+            }
         } else {
             showNotification('Error updating profile: ' + result.message);
         }
@@ -325,12 +368,12 @@ const chatbotClose = document.getElementById('chatbotClose');
 let conversationState = {};
 
 // Toggle chatbot window
-chatbotToggle.addEventListener('click', function() {
+chatbotToggle.addEventListener('click', function () {
     chatbotWindow.classList.add('active');
 });
 
 // Close chatbot window
-chatbotClose.addEventListener('click', function() {
+chatbotClose.addEventListener('click', function () {
     chatbotWindow.classList.remove('active');
 });
 
@@ -338,7 +381,7 @@ chatbotClose.addEventListener('click', function() {
 chatbotSend.addEventListener('click', sendMessage);
 
 // Send message when pressing Enter
-chatbotInput.addEventListener('keypress', function(e) {
+chatbotInput.addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         sendMessage();
     }
@@ -347,18 +390,18 @@ chatbotInput.addEventListener('keypress', function(e) {
 async function sendMessage() {
     const message = chatbotInput.value.trim();
     if (!message) return;
-    
+
     // Add user message to chat
     addMessage(message, 'user');
     chatbotInput.value = '';
-    
+
     // Show typing indicator
     const typingIndicator = document.createElement('div');
     typingIndicator.className = 'typing-indicator';
     typingIndicator.textContent = 'Thinking...';
     chatbotMessages.appendChild(typingIndicator);
     chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-    
+
     try {
         const response = await fetch('/chatbot', {
             method: 'POST',
@@ -370,29 +413,29 @@ async function sendMessage() {
                 conversation_state: conversationState
             })
         });
-        
+
         const data = await response.json();
-        
+
         // Update conversation state
         conversationState = data.conversation_state;
-        
+
         // Remove typing indicator
         typingIndicator.remove();
-        
+
         // Add bot response
         addMessage(data.response, 'bot');
-        
+
         // Add recommendations if present
         if (data.recommendations && data.recommendations.length > 0) {
             addRecommendations(data.recommendations);
         }
-        
+
         // If the bot should ask another question, set up for next response
         if (data.should_ask_question && data.next_question_key) {
             // Clear input to prepare for next question
             chatbotInput.placeholder = 'Type your answer...';
         }
-        
+
     } catch (error) {
         console.error('Error sending message:', error);
         typingIndicator.remove();
@@ -411,53 +454,53 @@ function addMessage(text, sender) {
 function addRecommendations(recommendations) {
     const recommendationDiv = document.createElement('div');
     recommendationDiv.className = 'message bot-message recommendation-message';
-    
+
     const title = document.createElement('div');
     title.textContent = 'Recommended for you:';
     title.style.fontWeight = 'bold';
     title.style.marginBottom = '10px';
     recommendationDiv.appendChild(title);
-    
-    recommendations.forEach(function(item) {
+
+    recommendations.forEach(function (item) {
         const itemDiv = document.createElement('div');
         itemDiv.className = 'recommendation-item';
-        
+
         const infoDiv = document.createElement('div');
         infoDiv.className = 'recommendation-info';
-        
+
         const nameSpan = document.createElement('div');
         nameSpan.className = 'recommendation-name';
         nameSpan.textContent = item.name;
-        
+
         const categorySpan = document.createElement('div');
         categorySpan.className = 'recommendation-category';
         categorySpan.textContent = item.category + ' | \u20B9' + item.price;
-        
+
         infoDiv.appendChild(nameSpan);
         infoDiv.appendChild(categorySpan);
-        
+
         const priceDiv = document.createElement('div');
         priceDiv.className = 'recommendation-price';
         priceDiv.textContent = 'Confidence: ' + item.confidence + '%';
-        
+
         itemDiv.appendChild(infoDiv);
         itemDiv.appendChild(priceDiv);
-        
+
         // Add click event to add item to cart
-        itemDiv.addEventListener('click', function() {
+        itemDiv.addEventListener('click', function () {
             addToCart(item.id, item.name, item.price);
             showNotification(item.name + ' added to cart!');
         });
-        
+
         recommendationDiv.appendChild(itemDiv);
     });
-    
+
     chatbotMessages.appendChild(recommendationDiv);
     chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
 }
 
 // Reset chatbot when opening
-chatbotToggle.addEventListener('click', function() {
+chatbotToggle.addEventListener('click', function () {
     if (!chatbotWindow.classList.contains('active')) {
         // Reset conversation when opening if it was closed
         resetChatbot();
@@ -472,10 +515,10 @@ async function resetChatbot() {
                 'Content-Type': 'application/json',
             }
         });
-        
+
         const data = await response.json();
         conversationState = data.conversation_state;
-        
+
         // Clear chat messages except the welcome message
         chatbotMessages.innerHTML = '<div class="message bot-message">' + data.response + '</div>';
     } catch (error) {
@@ -484,11 +527,11 @@ async function resetChatbot() {
 }
 
 // Close chatbot when clicking outside
-window.addEventListener('click', function(e) {
-    if (chatbotWindow.classList.contains('active') && 
-        !chatbotWindow.contains(e.target) && 
+window.addEventListener('click', function (e) {
+    if (chatbotWindow.classList.contains('active') &&
+        !chatbotWindow.contains(e.target) &&
         !chatbotToggle.contains(e.target)) {
-        
+
         // Don't close if clicking on cart modal
         const cartModal = document.getElementById('cart-modal');
         if (!cartModal || !cartModal.contains(e.target)) {
@@ -500,43 +543,4 @@ window.addEventListener('click', function(e) {
 // Initialize chatbot
 resetChatbot();
 
-// Theme Toggle Functionality
-function toggleTheme() {
-    const body = document.body;
-    const themeIcon = document.querySelector('.theme-toggle i');
-    
-    if (body.classList.contains('light-theme')) {
-        // Switch to dark theme
-        body.classList.remove('light-theme');
-        
-        // Update icon to moon (dark mode)
-        themeIcon.className = 'fas fa-moon';
-        
-        // Save theme preference
-        localStorage.setItem('theme', 'dark');
-    } else {
-        // Switch to light theme
-        body.classList.add('light-theme');
-        
-        // Update icon to sun (light mode)
-        themeIcon.className = 'fas fa-sun';
-        
-        // Save theme preference
-        localStorage.setItem('theme', 'light');
-    }
-}
-
-// Check for saved theme preference or respect OS setting
-window.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    if (savedTheme === 'light' || (!savedTheme && !prefersDarkScheme.matches)) {
-        // Apply light theme
-        document.body.classList.add('light-theme');
-        document.querySelector('.theme-toggle i').className = 'fas fa-sun';
-    } else {
-        // Apply dark theme (default)
-        document.querySelector('.theme-toggle i').className = 'fas fa-moon';
-    }
-});
+// Theme functionality removed

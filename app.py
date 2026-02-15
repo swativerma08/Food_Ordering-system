@@ -751,7 +751,7 @@ def profile():
     return render_template('profile.html', user=user_profile, orders=order_history)
 
 # Global variable to hold current user profile
-user_profile = None
+
 
 @app.route('/update_profile', methods=['POST'])
 def update_profile():
@@ -1026,6 +1026,31 @@ def place_order():
         "message": "Order placed successfully!",
         "order_summary": order_summary,
         "total_amount": total_price
+    })
+
+
+
+@app.route('/api/check_profile_status', methods=['GET'])
+def check_profile_status():
+    global user_profile
+    if not user_profile:
+        # Should not happen as we initialize default user, but safe fallback
+        return jsonify({'complete': False, 'message': 'User profile not initialized'})
+    
+    missing_fields = []
+    if not user_profile.get('full_name'):
+        missing_fields.append('Full Name')
+    if not user_profile.get('phone'):
+        missing_fields.append('Phone')
+    if not user_profile.get('address'):
+        missing_fields.append('Address')
+        
+    is_complete = len(missing_fields) == 0
+    
+    return jsonify({
+        'complete': is_complete,
+        'missing_fields': missing_fields,
+        'message': 'Profile complete' if is_complete else 'Please complete your profile details'
     })
 
 

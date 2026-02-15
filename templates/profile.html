@@ -3,75 +3,102 @@
 {% block content %}
 <!-- Profile Content -->
 <div class="profile-container">
-    <div class="profile-header">
-        <h2>User Profile</h2>
-    </div>
     
-    <div class="profile-info">
-        <div class="profile-card">
-            <h3 id="full-name-display">{{ user.full_name if user.full_name else 'Not provided' }}</h3>
-            <p><strong>Username:</strong> <span id="username-display">{{ user.username if user.username else 'Not provided' }}</span></p>
-            <p><strong>Email:</strong> <span id="email-display">{{ user.email if user.email else 'Not provided' }}</span></p>
-            <p><strong>Phone:</strong> <span id="phone-display">{{ user.phone if user.phone else 'Not provided' }}</span></p>
-            <p><strong>Address:</strong> <span id="address-display">{{ user.address if user.address else 'Not provided' }}</span></p>
-            
-            <!-- Edit Profile Button -->
-            <button id="edit-profile-btn" class="edit-profile-btn" onclick="showEditProfileForm()">Edit Profile</button>
-            
-            <!-- Edit Profile Form (initially hidden) -->
-            <form id="edit-profile-form" class="edit-profile-form" style="display: none;">
-                <input type="hidden" name="user_id" value="{{ user.id }}">
-                <h4>Edit Profile Information</h4>
-                <div>
-                    <label for="edit-username">User Name:</label>
-                    <input type="text" id="edit-username" name="username" value="{{ user.username if user.username else '' }}">
-                </div>
-                <div>
-                    <label for="edit-full-name">Full Name:</label>
-                    <input type="text" id="edit-full-name" name="full_name" value="{{ user.full_name if user.full_name else '' }}">
-                </div>
-                <div>
-                    <label for="edit-email">Email:</label>
-                    <input type="email" id="edit-email" name="email" value="{{ user.email if user.email else '' }}">
-                </div>
-                <div>
-                    <label for="edit-phone">Phone Number:</label>
-                    <input type="tel" id="edit-phone" name="phone" value="{{ user.phone if user.phone else '' }}">
-                </div>
-                <div>
-                    <label for="edit-address">Address:</label>
-                    <textarea id="edit-address" name="address">{{ user.address if user.address else '' }}</textarea>
-                </div>
-                <button type="button" onclick="updateProfile()">Confirm</button>
-                <button type="button" onclick="hideEditProfileForm()">Cancel</button>
-            </form>
+    <div class="profile-card animate-up">
+        <div class="profile-header-minimal">
+            <h2>My Profile</h2>
+            <p>Manage your delivery details</p>
         </div>
+
+        <!-- View Mode: Shows confirmed details -->
+        <div id="profile-view" class="profile-view" style="display: {{ 'none' if not user.full_name or not user.phone or not user.address else 'block' }};">
+            <div class="info-row">
+                <span class="label">Name</span>
+                <span class="value" id="view-full-name">{{ user.full_name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Username</span>
+                <span class="value" id="view-username">{{ user.username }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Phone</span>
+                <span class="value" id="view-phone">{{ user.phone }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Address</span>
+                <span class="value" id="view-address">{{ user.address }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Email</span>
+                <span class="value">{{ user.email }}</span>
+            </div>
+            
+            <button class="edit-btn-minimal" onclick="showEditProfileForm()">Edit Details</button>
+        </div>
+
+        <!-- Edit Mode: Form for input -->
+        <!-- Automatically shown if profile is incomplete -->
+        <form id="edit-profile-form" class="profile-form" style="display: {{ 'block' if not user.full_name or not user.phone or not user.address else 'none' }};">
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+            
+            <div class="form-group">
+                <label for="edit-full-name">Full Name</label>
+                <input type="text" id="edit-full-name" name="full_name" value="{{ user.full_name if user.full_name else '' }}" placeholder="Enter your full name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-username">Username</label>
+                <input type="text" id="edit-username" name="username" value="{{ user.username if user.username else '' }}" placeholder="Choose a username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="edit-phone">Contact Number</label>
+                <input type="tel" id="edit-phone" name="phone" value="{{ user.phone if user.phone else '' }}" placeholder="Enter phone number" required>
+            </div>
+
+            <div class="form-group">
+                <label for="edit-address">Delivery Address</label>
+                <textarea id="edit-address" name="address" placeholder="Enter your full address" required>{{ user.address if user.address else '' }}</textarea>
+            </div>
+            
+            <!-- Email is read-only or hidden to simplify -->
+            <input type="hidden" id="edit-email" name="email" value="{{ user.email }}">
+
+            <div class="form-actions">
+                <button type="button" class="confirm-btn" onclick="updateProfile()">Confirm & Save</button>
+                {% if user.full_name and user.phone and user.address %}
+                <button type="button" class="cancel-btn" onclick="hideEditProfileForm()">Cancel</button>
+                {% endif %}
+            </div>
+        </form>
     </div>
     
-    <div class="order-history">
-        <h3>Order History</h3>
+    <div class="order-history animate-up delay-1">
+        <h3>Recent Orders</h3>
         {% if orders %}
         <div class="orders-list">
             {% for order in orders %}
             <div class="order-item">
-                <div class="order-date">{{ order.timestamp[:19] if order.timestamp else 'Recent Order' }}</div>
-                <div class="order-details">
+                <div class="order-header">
+                    <span class="order-date">{{ order.timestamp[:10] }}</span>
+                    <span class="order-total-price">₹{{ order.total_amount }}</span>
+                </div>
+                <div class="order-summary-text">
                     {% for item in order.order_summary %}
-                    <div class="order-line">
-                        <span>{{ item.name }} x{{ item.quantity }}</span>
-                        <span>₹{{ item.total }}</span>
-                    </div>
+                        {{ item.name }} x{{ item.quantity }}{{ ", " if not loop.last else "" }}
                     {% endfor %}
-                    <div class="order-total">
-                        <strong>Total: ₹{{ order.total_amount }}</strong>
-                    </div>
                 </div>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <p>No orders yet. <a href="{{ url_for('menu') }}">Start shopping!</a></p>
+        <p class="no-orders">No past orders. <a href="{{ url_for('menu') }}">Order now!</a></p>
         {% endif %}
     </div>
 </div>
+
+<script>
+    // Auto-focus logic is handled by backend template rendering (style display),
+    // but we can add client-side enhancement if needed.
+</script>
 {% endblock %}
